@@ -178,10 +178,40 @@ void SendGeneralSetting(byte Set)
  // Envia sinal de fim de transmissão após enviar todos os parâmetros
 void sendEndOfTransmission()
 {
-    Serial.write(0xF0);         // Início SysEx
-    Serial.write(0x77);         // Manufacturer ID (mantendo padrão do projeto)
-    Serial.write(0x7F);         // Código especial: fim de transmissão
-    Serial.write(0xF7);         // Fim SysEx
+    Serial.write(0xF0);     // Start of SysEx
+    Serial.write(0x77);     // Manufacturer ID (padrão do projeto)
+    Serial.write(0x7F);     // Código especial de "fim da transmissão"
+    Serial.write(0xF7);     // End of SysEx
+}
+
+void sendAllParameters(byte padIndex)
+{
+   Serial.print("Enviando pad: "); Serial.println(padIndex);
+  sendSysEx(padIndex, 0x00, Pin[padIndex].Note);delay(1);
+  sendSysEx(padIndex, 0x01, Pin[padIndex].Thresold);delay(1);
+  sendSysEx(padIndex, 0x02, Pin[padIndex].ScanTime);delay(1);
+  sendSysEx(padIndex, 0x03, Pin[padIndex].MaskTime);delay(1);
+  sendSysEx(padIndex, 0x04, Pin[padIndex].Retrigger);delay(1);
+  sendSysEx(padIndex, 0x05, Pin[padIndex].Curve);delay(1);
+  sendSysEx(padIndex, 0x06, Pin[padIndex].CurveForm);delay(1);
+  sendSysEx(padIndex, 0x07, Pin[padIndex].Gain);delay(1);
+  sendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(1);
+  sendSysEx(padIndex, 0x0D, Pin[padIndex].XtalkGroup);delay(1);
+  sendSysEx(padIndex, 0x0E, Pin[padIndex].Channel);delay(1);
+  sendSysEx(padIndex, 0x0F, Pin[padIndex].Type);delay(1);
+  Serial.print("Fim pad: "); Serial.println(padIndex);
+}
+
+void sendSysEx(byte padIndex, byte paramId, byte value)
+{
+  Serial.write(0xF0);       // Início da SysEx
+  Serial.write(0x77);       // Manufacturer ID (fixo no seu protocolo)
+  Serial.write(0x02);       // Identificador de mensagem de parâmetro
+  Serial.write(padIndex);   // Índice do pad
+  Serial.write(paramId);    // ID do parâmetro
+  Serial.write(value);      // Valor do parâmetro
+  Serial.write(0xF7);       // Fim da SysEx
+  Serial.flush();
 }
 
 void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
@@ -189,6 +219,13 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
   
   switch(Cmd)
       {
+        case 0x25: // CMD_SEND_ALL_PADS
+      for (byte i = 0; i < 15; i++) {
+        sendAllParameters(i); // <- ESSENCIAL!
+      }
+
+      sendEndOfTransmission(); // <- Encerra tudo com estilo
+      break;
         case 0x10: // Comando especial de debug para imprimir os dados da caixa
           PrintAllPadSettings();
         break;

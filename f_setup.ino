@@ -4,6 +4,13 @@
 //==============================
 void setup()
 {
+//  Serial.begin(115200);
+//   while (!Serial);
+
+//   // SavePresetsToEEPROM(); // Agora comenta ISSO
+//   LoadAllEEPROM(); 
+
+
   pinMode(13, OUTPUT);   //LED
   
 //------------------------------------

@@ -9,13 +9,26 @@
 //==============================
 void loop()
  {
-  //REMOVER O COMANDO ABAIXO PARA PARAR DE DEBUGAR...
-static bool testado = false;
-  if (!testado) {
-    ExecCommand(0x10, 0x00, 0x00, 0x00);
-    testado = false;
-  }
-  // FINAL DA REMOÇÃO
+  //TESTE PARA DEBUGAR O EXECCOMMAND
+  // if (Serial.available()) {
+  //   char ch = Serial.peek(); // Espia o próximo byte sem remover
+
+  //   // Comando especial: se digitar % no Serial Monitor
+  //   if (ch == '%') {
+  //     Serial.read(); // Consumir o %
+  //     Serial.println("Comando % recebido: Executando CMD_SEND_ALL_PADS");
+  //     ExecCommand(0x25, 0, 0, 0);
+  //   }
+  //   // Protocolo normal: 4 bytes
+  //   else if (Serial.available() >= 4) {
+  //     byte CMD = Serial.read();
+  //     byte A = Serial.read();
+  //     byte B = Serial.read();
+  //     byte C = Serial.read();
+
+  //     ExecCommand(CMD, A, B, C);
+  //   }
+  // }
 
         //simpleSysex(0xFF,Mode,0x00,0x00);
         Input(); 

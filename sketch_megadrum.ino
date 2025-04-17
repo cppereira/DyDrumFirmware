@@ -12,6 +12,9 @@
 //==============================================================================
 
 //========CONFIGURE=============
+#define CMD_SEND_ALL_PADS 0x25 //Comando/parametro para enviar todos os pads de uma vez...
+
+#define MAX_NUMBER_PADS 15;
 
 #define FASTADC           1     // FASTADC = Prescaler_16, VERYFASTADC = Prescaler_8, VERYVERYFASTADC = Prescaler_4
 #define SERIALSPEED       1     // 1 = 115200, 0 = 31250 (MIDI) , picoMIDI use 115200 therefore with nanoDrum and v0.8 use 1

@@ -63,22 +63,21 @@ enum state:byte
 //===========================
 
 //
-const byte DP_HHC       = 0x00;
-const byte DP_SNAREHEAD = 0x01;
-const byte DP_SNARERIM  = 0x02;
-const byte DP_KICK      = 0x03;
-const byte DP_TOM1HEAD  = 0x04;
-const byte DP_TOM2HEAD  = 0x05;
-const byte DP_TOM3HEAD  = 0x06;
-const byte DP_TOM4HEAD  = 0x07;
-const byte DP_EXTRA1    = 0x08;
-const byte DP_EXTRA2    = 0x09;  
-const byte DP_HHBOW     = 0x0A;
-const byte DP_CHINA     = 0x0B;
-const byte DP_SPLASH    = 0x0C;
-const byte DP_CRASHEDGE = 0x0D;
-const byte DP_RIDEBOW   = 0x0E;
-const byte DP_RIDEEDGE  = 0x0F;
+const byte DP_HHC         = 0x00;
+const byte DP_HIHAT       = 0x01;
+const byte DP_SNARE       = 0x02;
+const byte DP_HACKTOM1    = 0x03;
+const byte DP_HACKTOM2    = 0x04;
+const byte DP_HACKTOM3    = 0x05;
+const byte DP_FLOORTOM1   = 0x06;
+const byte DP_FLOORTOM2   = 0x07;
+const byte DP_KICK        = 0x08;
+const byte DP_CRASH1      = 0x09;  
+const byte DP_SPLASH      = 0x0A;
+const byte DP_CRASH2      = 0x0B;
+const byte DP_RIDE        = 0x0C;
+const byte DP_CHINA       = 0x0D;
+const byte DP_HIHAT2      = 0x0E;
 
 //===========================
 //   PIN 
@@ -117,72 +116,102 @@ class pin
   //===============================
   void set(byte pin)
   {
-    Time=TIMEFUNCTION;
-    this->Time=Time+this->MaskTime;    
+    this->Time = TIMEFUNCTION + this->MaskTime;    
     this->_pin=pin;  
     
-    switch(pin)
-    {
-      case DP_SNAREHEAD:
-        this->Type=Piezo;
-        this->Note=38;
-      break;
-      case DP_SNARERIM:
-        this->Type=Piezo;
-        this->Note=40;
-      break;
-      case DP_KICK:
-        this->Type=Piezo;
-        this->Note=36;
-      break;
-      case DP_TOM1HEAD:
-        this->Type=Piezo;
-        this->Note=48;
-      break;
-      case DP_TOM2HEAD:
-        this->Type=Piezo;
-        this->Note=47;
-      break;
-      case DP_TOM3HEAD:
-        this->Type=Piezo;
-        this->Note=45;
-      break;
-      case DP_TOM4HEAD:
-        this->Type=Piezo;
-        this->Note=43;
-      break;
-     
-     // IF MEGA
-      case DP_EXTRA1:
-        this->Type=Piezo;
-        this->Note=41;
-      break;
-      case DP_EXTRA2:
-        this->Type=Piezo;
-        this->Note=73;
-      break;
-     // ---------
-      case DP_HHBOW:
-        this->Type=Piezo;
-        this->Note=7;
-      break;
-      case DP_CHINA:
-        this->Type=Piezo;
-        this->Note=52;
-      break;
-      case DP_SPLASH:
-        this->Type=Piezo;
-        this->Note=55;
-      break;
-      case DP_CRASHEDGE:
-        this->Type=Piezo;
-        this->Note=49;
-      break;
-      case DP_HHC:
-        this->Type=HHC;
-        this->Thresold=10;      
-      break;
-    }
+
+// ======= PAD DEFAULTS GLOBAIS =======
+this->Type = Piezo;
+this->Thresold = 10;
+this->Gain = 80;
+this->Curve = 2;
+this->CurveForm = 70;
+this->ScanTime = 10;
+this->MaskTime = 20;
+this->Retrigger = 30;
+this->Xtalk = 15;
+this->XtalkGroup = 0; // vai ser sobrescrito abaixo
+
+// ======= PAD ESPECÍFICOS =======
+switch(pin)
+{
+  case DP_HHC:
+    this->Type = HHC;
+    this->Note = 4;
+    this->XtalkGroup = 1;
+    break;
+
+  case DP_HIHAT:
+    this->Note = 7;
+    this->XtalkGroup = 1;
+    break;
+
+  case DP_SNARE:
+    this->Note = 38;
+    this->XtalkGroup = 1;
+    break;
+
+  case DP_HACKTOM1:
+    this->Note = 48;
+    this->XtalkGroup = 2;
+    break;
+
+  case DP_HACKTOM2:
+    this->Note = 47;
+    this->XtalkGroup = 2;
+    break;
+
+  case DP_HACKTOM3:
+    this->Note = 45;
+    this->XtalkGroup = 2;
+    break;
+
+  case DP_FLOORTOM1:
+    this->Note = 43;
+    this->XtalkGroup = 2;
+    break;
+
+  case DP_FLOORTOM2:
+    this->Note = 41;
+    this->XtalkGroup = 2;
+    break;
+
+  case DP_KICK:
+    this->Note = 36;
+    this->XtalkGroup = 1;
+    break;
+
+  case DP_CRASH1:
+    this->Note = 49;
+    this->XtalkGroup = 3;
+    break;
+
+  case DP_SPLASH:
+    this->Note = 55;
+    this->XtalkGroup = 3;
+    break;
+
+  case DP_CRASH2:
+    this->Note = 57;
+    this->XtalkGroup = 3;
+    break;
+
+  case DP_RIDE:
+    this->Note = 51;
+    this->XtalkGroup = 3;
+    break;
+
+  case DP_CHINA:
+    this->Note = 52;
+    this->XtalkGroup = 3;
+    break;
+
+  case DP_HIHAT2:
+    this->Note = 26;
+    this->XtalkGroup = 1;
+    break;
+}
+
     
   }
   
