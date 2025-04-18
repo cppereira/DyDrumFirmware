@@ -87,27 +87,7 @@ class pin
   public:  
   //===========PIN============
   pin()
-  {    
-    Type=Disabled;
-    //State;
-    Note=0;
-    
-    Gain=20;
-    #if ENABLE_CHANNEL
-      Channel=9;
-    #endif
-    
-    Thresold=20;
-    ScanTime=10;
-    MaskTime=30;
-    Retrigger=30;
-
-    Curve=Linear;
-    CurveForm=110;
-    Xtalk=0;
-    XtalkGroup=0;
-
-    //Time;
+  { //Time;
     MaxReading=-1;    
   }
 
@@ -122,15 +102,19 @@ class pin
 
 // ======= PAD DEFAULTS GLOBAIS =======
 this->Type = Piezo;
+this->Note = 0; // vai ser sobrescrito abaixo
 this->Thresold = 10;
-this->Gain = 80;
-this->Curve = 2;
-this->CurveForm = 70;
 this->ScanTime = 10;
 this->MaskTime = 20;
 this->Retrigger = 30;
+this->Curve = 2;
+this->CurveForm = 70;
 this->Xtalk = 15;
 this->XtalkGroup = 0; // vai ser sobrescrito abaixo
+#if ENABLE_CHANNEL
+  this->Channel = 9; //Sempre canal 10 (9+1)
+#endif
+this->Gain = 80;
 
 // ======= PAD ESPECÍFICOS =======
 switch(pin)

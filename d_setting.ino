@@ -95,20 +95,12 @@ byte GetPinSetting(byte pin,byte Set)
     break;
     case CURVEFORM:
       Value=Pin[pin].CurveForm;
-    break;
-    case CHOKENOTE:
-      Value=Pin[pin].ChokeNote;
-      break;
-    case DUAL:
-      Value=DualSensor(pin);
-      break;    
+    break;       
     case TYPE:
       Value=Pin[pin].Type;
       break;
-    case CHANNEL:
-    #if ENABLE_CHANNEL
-      Value=Pin[pin].Channel;
-    #endif
+    case CHANNEL:    
+      Value=Pin[pin].Channel;    
       break; 
   } 
  
@@ -186,7 +178,7 @@ void sendEndOfTransmission()
 
 void sendAllParameters(byte padIndex)
 {
-   Serial.print("Enviando pad: "); Serial.println(padIndex);
+  Serial.print("Enviando pad: "); Serial.println(padIndex);
   sendSysEx(padIndex, 0x00, Pin[padIndex].Note);delay(1);
   sendSysEx(padIndex, 0x01, Pin[padIndex].Thresold);delay(1);
   sendSysEx(padIndex, 0x02, Pin[padIndex].ScanTime);delay(1);
@@ -201,6 +193,7 @@ void sendAllParameters(byte padIndex)
   sendSysEx(padIndex, 0x0F, Pin[padIndex].Type);delay(1);
   Serial.print("Fim pad: "); Serial.println(padIndex);
 }
+
 
 void sendSysEx(byte padIndex, byte paramId, byte value)
 {
@@ -220,12 +213,12 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
   switch(Cmd)
       {
         case 0x25: // CMD_SEND_ALL_PADS
-      for (byte i = 0; i < 15; i++) {
-        sendAllParameters(i); // <- ESSENCIAL!
-      }
+          for (byte i = 0; i < 15; i++) {
+            sendAllParameters(i); // <- ESSENCIAL!
+          }
+          sendEndOfTransmission(); // <- Encerra tudo com estilo
+        break;
 
-      sendEndOfTransmission(); // <- Encerra tudo com estilo
-      break;
         case 0x10: // Comando especial de debug para imprimir os dados da caixa
           PrintAllPadSettings();
         break;
