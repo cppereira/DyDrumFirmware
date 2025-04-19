@@ -188,18 +188,18 @@ void sendAllParameters(byte padIndex)
 {
   
   Serial.print("Enviando pad: "); Serial.println(padIndex);
-  sendSysEx(padIndex, 0x00, Pin[padIndex].Type);delay(1);
-  sendSysEx(padIndex, 0x01, Pin[padIndex].Note);delay(1);
-  sendSysEx(padIndex, 0x02, Pin[padIndex].Thresold);delay(1);
-  sendSysEx(padIndex, 0x03, Pin[padIndex].ScanTime);delay(1);
-  sendSysEx(padIndex, 0x04, Pin[padIndex].MaskTime);delay(1);
-  sendSysEx(padIndex, 0x05, Pin[padIndex].Retrigger);delay(1);
-  sendSysEx(padIndex, 0x06, Pin[padIndex].Curve);delay(1);
-  sendSysEx(padIndex, 0x07, Pin[padIndex].CurveForm);delay(1);  
-  sendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(1);
-  sendSysEx(padIndex, 0x09, Pin[padIndex].XtalkGroup);delay(1);
-  sendSysEx(padIndex, 0x0A, Pin[padIndex].Channel);delay(1);
-  sendSysEx(padIndex, 0x0B, Pin[padIndex].Gain);delay(1);
+  sendSysEx(padIndex, 0x00, Pin[padIndex].Type);delay(3);
+  sendSysEx(padIndex, 0x01, Pin[padIndex].Note);delay(3);
+  sendSysEx(padIndex, 0x02, Pin[padIndex].Thresold);delay(3);
+  sendSysEx(padIndex, 0x03, Pin[padIndex].ScanTime);delay(3);
+  sendSysEx(padIndex, 0x04, Pin[padIndex].MaskTime);delay(3);
+  sendSysEx(padIndex, 0x05, Pin[padIndex].Retrigger);delay(3);
+  sendSysEx(padIndex, 0x06, Pin[padIndex].Curve);delay(3);
+  sendSysEx(padIndex, 0x07, Pin[padIndex].CurveForm);delay(3);  
+  sendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(3);
+  sendSysEx(padIndex, 0x09, Pin[padIndex].XtalkGroup);delay(3);
+  sendSysEx(padIndex, 0x0A, Pin[padIndex].Channel);delay(3);
+  sendSysEx(padIndex, 0x0B, Pin[padIndex].Gain);delay(3);
   
   Serial.print("Fim pad: "); Serial.println(padIndex);
 }
@@ -241,9 +241,14 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
           sendEndOfTransmission(); // <- Encerra tudo com estilo
         break;
 
-        case 0x26:
-            SaveEEPROM(Data1, Data2, Data3); // data1 = padId, data2 = paramId, data3 = value
+        // EM DESENVOLVIMENTO
+        case 0x26: // CMD_SEND_ALL_PADS
+          SaveAllPadsToEEPROM();
         break;
+
+        // case 0x26:
+        //     SaveEEPROM(Data1, Data2, Data3); // data1 = padId, data2 = paramId, data3 = value
+        // break;
         
         case 0x28:
             Serial.println(F("[ARDUINO] Todos os dados foram gravados com sucesso."));

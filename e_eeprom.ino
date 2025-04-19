@@ -137,3 +137,15 @@ void LoadHHEEPROM(byte Param)
   ExecCommand(0x03,0x4C,Param,Value);
   #endif
 }
+
+//EM DESENVOLVIMENTO
+void SaveAllPadsToEEPROM() {
+  for (byte pad = 0; pad < NPin; pad++) {
+    for (byte param = 0x00; param <= 0x0B; param++) {
+      byte value = GetPinSetting(pad, param);
+      EEPROM.update(100 + (pad * 12) + param, value);
+    }
+  }
+  Serial.println(F("[ARDUINO] Todos os pads gravados na EEPROM com sucesso."));
+}
+
