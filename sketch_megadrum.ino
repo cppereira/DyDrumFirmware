@@ -76,7 +76,7 @@ const int delayTime=10;
 byte GeneralXtalk=0;
 
 //Define o número de pinos utilizados, no caso 16 para MEGA
-const byte NPin=15;
+const byte NPin=16;
 
 
 byte NSensor=2;

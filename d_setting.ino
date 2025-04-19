@@ -1,18 +1,17 @@
 
 //===========SETTING============
-const byte NOTE      = 0x00;
-const byte THRESOLD  = 0x01;
-const byte SCANTIME  = 0x02;
-const byte MASKTIME  = 0x03;
-const byte RETRIGGER = 0x04;
-const byte CURVE     = 0x05;
-const byte XTALK     = 0x06;
-const byte XTALKGROUP= 0x07;
-const byte CURVEFORM = 0x08;
-const byte CHOKENOTE = 0x09;
-const byte DUAL      = 0x0A;
-const byte TYPE      = 0x0D;
-const byte CHANNEL   = 0x0E;
+const byte TYPE      = 0x00;
+const byte NOTE      = 0x01;
+const byte THRESOLD  = 0x02;
+const byte SCANTIME  = 0x03;
+const byte MASKTIME  = 0x04;
+const byte RETRIGGER = 0x05;
+const byte CURVE     = 0x06;
+const byte CURVEFORM = 0x07;
+const byte XTALK     = 0x08;
+const byte XTALKGROUP= 0x09;
+const byte CHANNEL   = 0x0A;
+const byte GAIN      = 0x0B;
 //===============================
 
 
@@ -41,23 +40,25 @@ void SendPinSetting(byte pin,byte Set)
 {
   if(Set==0x7F)//All
   { 
-      simpleSysex(0x02,pin,0x00,Pin[pin].Note);//NOTE
-      simpleSysex(0x02,pin,0x01,Pin[pin].Thresold);//THRESOLD
-      simpleSysex(0x02,pin,0x02,Pin[pin].ScanTime);//SCANTIME
-      simpleSysex(0x02,pin,0x03,Pin [pin].MaskTime);//MASKTIME
-      simpleSysex(0x02,pin,0x04,Pin[pin].Retrigger);//RETRIGGER
-      simpleSysex(0x02,pin,0x05,Pin[pin].Curve);//CURVE
-      simpleSysex(0x02,pin,0x06,Pin[pin].Xtalk);//XTALK
-      simpleSysex(0x02,pin,0x07,Pin[pin].XtalkGroup);//XTALKGROUP
-      simpleSysex(0x02,pin,0x08,Pin[pin].CurveForm);//CURVEFORM
-      simpleSysex(0x02,pin,0x09,Pin[pin].ChokeNote);//CHOKE
-      simpleSysex(0x02,pin,0x0A,DualSensor(pin));//DUAL
+    // simpleSysex(0x02,pin,0x09,Pin[pin].ChokeNote);//CHOKE
+      // simpleSysex(0x02,pin,0x0A,DualSensor(pin));//DUAL
       //simpleSysex(0x02,Pin,0x0B,DualNoteSensor[Pin]);//DUALNOTE
       //simpleSysex(0x02,Pin,0x0C,DualThresoldSensor[Pin]);//DUALTHRESOLD
-      simpleSysex(0x02,pin,0x0D,Pin[pin].Type);//TYPE
+
+      simpleSysex(0x02,pin,0x00,Pin[pin].Type);//TYPE
+      simpleSysex(0x02,pin,0x01,Pin[pin].Note);//NOTE
+      simpleSysex(0x02,pin,0x02,Pin[pin].Thresold);//THRESOLD
+      simpleSysex(0x02,pin,0x03,Pin[pin].ScanTime);//SCANTIME
+      simpleSysex(0x02,pin,0x04,Pin[pin].MaskTime);//MASKTIME
+      simpleSysex(0x02,pin,0x05,Pin[pin].Retrigger);//RETRIGGER
+      simpleSysex(0x02,pin,0x06,Pin[pin].Curve);//CURVE
+      simpleSysex(0x02,pin,0x07,Pin[pin].CurveForm);//CURVEFORM
+      simpleSysex(0x02,pin,0x08,Pin[pin].Xtalk);//XTALK
+      simpleSysex(0x02,pin,0x09,Pin[pin].XtalkGroup);//XTALKGROUP
       #if ENABLE_CHANNEL
-      simpleSysex(0x02,pin,0x0E,Pin[pin].Channel);//CHANNEL
+      simpleSysex(0x02,pin,0x0A,Pin[pin].Channel);//CHANNEL (tambem estava com problema porque o loop nao puxava ele)
       #endif
+      simpleSysex(0x02,pin,0x0B,Pin[pin].Gain); //Estava faltando na gravação, deu trabalho para encontrar o problema
       return;
   } 
  
@@ -102,6 +103,9 @@ byte GetPinSetting(byte pin,byte Set)
     case CHANNEL:    
       Value=Pin[pin].Channel;    
       break; 
+    case GAIN:    
+      Value=Pin[pin].Gain;    
+      break; 
   } 
  
   return Value;
@@ -124,7 +128,7 @@ void SendHHSetting(byte Set)
       simpleSysex(0x02,0x4C,0x08,HHFootNoteSensor[0]);//HH FOOTSPLASH NOTE
       simpleSysex(0x02,0x4C,0x09,HHFootNoteSensor[1]);//HH FOOTCLOSE NOTE
       simpleSysex(0x02,0x4C,0x0A,HHFootThresoldSensor[0]);//HH FOOTSPLASH THRESOLD
-      simpleSysex(0x02,0x4C,0x0B,HHFootThresoldSensor[1]);//HH FOOTCLOSE THRESOLD
+      //simpleSysex(0x02,0x4C,0x0B,HHFootThresoldSensor[1]);//HH FOOTCLOSE THRESOLD
       return;
     }
    else if(Set<4)Value=HHNoteSensor[Set];
@@ -167,6 +171,10 @@ void SendGeneralSetting(byte Set)
   simpleSysex(0x02,0x7E,Set,Value);
 }
  
+
+//############### CÓDIGO ADICIONADO AO FIRMWARE #########################
+
+
  // Envia sinal de fim de transmissão após enviar todos os parâmetros
 void sendEndOfTransmission()
 {
@@ -178,19 +186,21 @@ void sendEndOfTransmission()
 
 void sendAllParameters(byte padIndex)
 {
+  
   Serial.print("Enviando pad: "); Serial.println(padIndex);
-  sendSysEx(padIndex, 0x00, Pin[padIndex].Note);delay(1);
-  sendSysEx(padIndex, 0x01, Pin[padIndex].Thresold);delay(1);
-  sendSysEx(padIndex, 0x02, Pin[padIndex].ScanTime);delay(1);
-  sendSysEx(padIndex, 0x03, Pin[padIndex].MaskTime);delay(1);
-  sendSysEx(padIndex, 0x04, Pin[padIndex].Retrigger);delay(1);
-  sendSysEx(padIndex, 0x05, Pin[padIndex].Curve);delay(1);
-  sendSysEx(padIndex, 0x06, Pin[padIndex].CurveForm);delay(1);
-  sendSysEx(padIndex, 0x07, Pin[padIndex].Gain);delay(1);
+  sendSysEx(padIndex, 0x00, Pin[padIndex].Type);delay(1);
+  sendSysEx(padIndex, 0x01, Pin[padIndex].Note);delay(1);
+  sendSysEx(padIndex, 0x02, Pin[padIndex].Thresold);delay(1);
+  sendSysEx(padIndex, 0x03, Pin[padIndex].ScanTime);delay(1);
+  sendSysEx(padIndex, 0x04, Pin[padIndex].MaskTime);delay(1);
+  sendSysEx(padIndex, 0x05, Pin[padIndex].Retrigger);delay(1);
+  sendSysEx(padIndex, 0x06, Pin[padIndex].Curve);delay(1);
+  sendSysEx(padIndex, 0x07, Pin[padIndex].CurveForm);delay(1);  
   sendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(1);
-  sendSysEx(padIndex, 0x0D, Pin[padIndex].XtalkGroup);delay(1);
-  sendSysEx(padIndex, 0x0E, Pin[padIndex].Channel);delay(1);
-  sendSysEx(padIndex, 0x0F, Pin[padIndex].Type);delay(1);
+  sendSysEx(padIndex, 0x09, Pin[padIndex].XtalkGroup);delay(1);
+  sendSysEx(padIndex, 0x0A, Pin[padIndex].Channel);delay(1);
+  sendSysEx(padIndex, 0x0B, Pin[padIndex].Gain);delay(1);
+  
   Serial.print("Fim pad: "); Serial.println(padIndex);
 }
 
@@ -207,6 +217,18 @@ void sendSysEx(byte padIndex, byte paramId, byte value)
   Serial.flush();
 }
 
+// void checkForRawCommand() {
+//   if (Serial.available() >= 4) {
+//     byte cmd = Serial.read();
+//     byte data1 = Serial.read();
+//     byte data2 = Serial.read();
+//     byte data3 = Serial.read();
+//     ExecCommand(cmd, data1, data2, data3);
+//   }
+// }
+
+//############### FIM CÓDIGO ADICIONADO AO FIRMWARE #########################
+
 void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
 {
   
@@ -219,6 +241,13 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
           sendEndOfTransmission(); // <- Encerra tudo com estilo
         break;
 
+        case 0x26:
+            SaveEEPROM(Data1, Data2, Data3); // data1 = padId, data2 = paramId, data3 = value
+        break;
+        
+        case 0x28:
+            Serial.println(F("[ARDUINO] Todos os dados foram gravados com sucesso."));
+        break;
         case 0x10: // Comando especial de debug para imprimir os dados da caixa
           PrintAllPadSettings();
         break;
@@ -290,13 +319,16 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
               case 0x08: HHFootNoteSensor[0]=Data3;break;//FootSplash Note
               case 0x09: HHFootNoteSensor[1]=Data3;break;//FootClose Note
               case 0x0A: HHFootThresoldSensor[0]=Data3;break;//FootSplash Thresold
-              case 0x0B: HHFootThresoldSensor[1]=Data3;break;//FootClose Thresold              
+             // case 0x0B: HHFootThresoldSensor[1]=Data3;break;//FootClose Thresold              
             }
           }
           else
           {
             switch(Data2)
-            {
+            {              
+              //case CHOKENOTE: Pin[Data1].ChokeNote=Data3; break;
+              //case 0x0A: DualSensor[Data1]=Data3; break; //DUAL
+
               case NOTE: Pin[Data1].Note=Data3; break;
               case THRESOLD: Pin[Data1].Thresold=Data3; break;
               case SCANTIME: Pin[Data1].ScanTime=Data3; break;
@@ -306,12 +338,11 @@ void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
               case XTALK: Pin[Data1].Xtalk=Data3; break;
               case XTALKGROUP: Pin[Data1].XtalkGroup=Data3; break;
               case CURVEFORM: Pin[Data1].CurveForm=Data3; break;
-              case CHOKENOTE: Pin[Data1].ChokeNote=Data3; break;
-              //case 0x0A: DualSensor[Data1]=Data3; break; //DUAL
               case TYPE: Pin[Data1].Type=(type)Data3; break;
               #if ENABLE_CHANNEL
               case CHANNEL: Pin[Data1].Channel=Data3; break;
               #endif
+              case GAIN: Pin[Data1].Gain=Data3; break;
                           
             }
           }
@@ -385,3 +416,26 @@ void Input()
     ExecCommand(Cmd,Data1,Data2,Data3);
   }
 }
+
+//SE PRECISAR O CÓDIGO ESTÁ AQUI PARA RECEBER O HANDSHAKE DIRETAMENTE NO LOOP() LA EM CIMA, ANTES DE INPUT()
+
+// if (Serial.available() > 0) {
+//               byte incoming = Serial.read();
+
+//               if (incoming == 0xF0) {
+//                 checkForRawCommand(); // continua processando Sysex normalmente
+//               } else if (incoming == 0x26) {
+//                 writeMode = true;
+//                 Serial.println(F("[ARDUINO] Modo gravação ativado."));
+//               } else if (incoming == 0x28) {
+//                 writeMode = false;
+//                 Serial.println(F("[ARDUINO] Modo gravação encerrado."));
+//               } else if (writeMode) {
+//                 // Aguarda os próximos 3 bytes: pin, param, value
+//                 while (Serial.available() < 3); // Espera os próximos dados chegarem
+//                 byte pin = incoming;
+//                 byte param = Serial.read();
+//                 byte value = Serial.read();
+//                 SaveEEPROM(pin, param, value);
+//               }
+//         }

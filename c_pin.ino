@@ -102,14 +102,14 @@ class pin
 
 // ======= PAD DEFAULTS GLOBAIS =======
 this->Type = Piezo;
-this->Note = 0; // vai ser sobrescrito abaixo
+//this->Note = 0; // vai ser sobrescrito abaixo
 this->Thresold = 10;
-this->ScanTime = 10;
+this->ScanTime = 15;
 this->MaskTime = 20;
-this->Retrigger = 30;
+this->Retrigger = 25;
 this->Curve = 2;
 this->CurveForm = 70;
-this->Xtalk = 15;
+this->Xtalk = 40;
 this->XtalkGroup = 0; // vai ser sobrescrito abaixo
 #if ENABLE_CHANNEL
   this->Channel = 9; //Sempre canal 10 (9+1)

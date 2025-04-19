@@ -2,11 +2,6 @@
 //==============================
 //    EEPROM
 //==============================
-
-#if defined(__arm__) 
-//TODO: https://github.com/sebnil/DueFlashStorage
-#endif
-
 void LoadAllEEPROM()
 {
   #if defined(__AVR__)
@@ -18,11 +13,11 @@ void LoadAllEEPROM()
     LoadGeneralEEPROM(2);
     LoadGeneralEEPROM(3);
     
-    for(int h=0;h<12;h++)
+    for(int h=0;h<13;h++)
       LoadHHEEPROM(h);
     
-    for(int i=0;i<NPin;i++)
-      for(int j=0;j<14;j++)
+    for(int i=0;i<12;i++)
+      for(int j=0;j<12;j++)
         LoadEEPROM(i,j);
   }
   else
@@ -34,8 +29,8 @@ void LoadAllEEPROM()
     for(int h=0;h<12;h++)
       SaveHHEEPROM(h);
     
-    for(int i=0;i<NPin;i++)
-      for(int j=0;j<14;j++)
+    for(int i=0;i<12;i++)
+      for(int j=0;j<12;j++)
         SaveEEPROM(i,j);
         
     EEPROM.write(1, 8);
