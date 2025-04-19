@@ -13,7 +13,7 @@
 
 //========CONFIGURE=============
 #define CMD_SEND_ALL_PADS 0x25 //Comando/parametro para enviar todos os pads de uma vez...
-
+byte padSettings[15][12];
 #define MAX_NUMBER_PADS 15;
 
 #define FASTADC           1     // FASTADC = Prescaler_16, VERYFASTADC = Prescaler_8, VERYVERYFASTADC = Prescaler_4
@@ -76,7 +76,7 @@ const int delayTime=10;
 byte GeneralXtalk=0;
 
 //Define o número de pinos utilizados, no caso 16 para MEGA
-const byte NPin=16;
+const byte NPin=15;
 
 
 byte NSensor=2;

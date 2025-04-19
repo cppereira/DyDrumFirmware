@@ -176,7 +176,7 @@ void SendGeneralSetting(byte Set)
 
 
  // Envia sinal de fim de transmissão após enviar todos os parâmetros
-void sendEndOfTransmission()
+void SendEndOfTransmission()
 {
     Serial.write(0xF0);     // Start of SysEx
     Serial.write(0x77);     // Manufacturer ID (padrão do projeto)
@@ -184,28 +184,25 @@ void sendEndOfTransmission()
     Serial.write(0xF7);     // End of SysEx
 }
 
-void sendAllParameters(byte padIndex)
+void SendAllParameters(byte padIndex)
 {
-  
   Serial.print("Enviando pad: "); Serial.println(padIndex);
-  sendSysEx(padIndex, 0x00, Pin[padIndex].Type);delay(3);
-  sendSysEx(padIndex, 0x01, Pin[padIndex].Note);delay(3);
-  sendSysEx(padIndex, 0x02, Pin[padIndex].Thresold);delay(3);
-  sendSysEx(padIndex, 0x03, Pin[padIndex].ScanTime);delay(3);
-  sendSysEx(padIndex, 0x04, Pin[padIndex].MaskTime);delay(3);
-  sendSysEx(padIndex, 0x05, Pin[padIndex].Retrigger);delay(3);
-  sendSysEx(padIndex, 0x06, Pin[padIndex].Curve);delay(3);
-  sendSysEx(padIndex, 0x07, Pin[padIndex].CurveForm);delay(3);  
-  sendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(3);
-  sendSysEx(padIndex, 0x09, Pin[padIndex].XtalkGroup);delay(3);
-  sendSysEx(padIndex, 0x0A, Pin[padIndex].Channel);delay(3);
-  sendSysEx(padIndex, 0x0B, Pin[padIndex].Gain);delay(3);
-  
+  SendSysEx(padIndex, 0x00, Pin[padIndex].Type);delay(3);
+  SendSysEx(padIndex, 0x01, Pin[padIndex].Note);delay(3);
+  SendSysEx(padIndex, 0x02, Pin[padIndex].Thresold);delay(3);
+  SendSysEx(padIndex, 0x03, Pin[padIndex].ScanTime);delay(3);
+  SendSysEx(padIndex, 0x04, Pin[padIndex].MaskTime);delay(3);
+  SendSysEx(padIndex, 0x05, Pin[padIndex].Retrigger);delay(3);
+  SendSysEx(padIndex, 0x06, Pin[padIndex].Curve);delay(3);
+  SendSysEx(padIndex, 0x07, Pin[padIndex].CurveForm);delay(3);  
+  SendSysEx(padIndex, 0x08, Pin[padIndex].Xtalk);delay(3);
+  SendSysEx(padIndex, 0x09, Pin[padIndex].XtalkGroup);delay(3);
+  SendSysEx(padIndex, 0x0A, Pin[padIndex].Channel);delay(3);
+  SendSysEx(padIndex, 0x0B, Pin[padIndex].Gain);delay(3);  
   Serial.print("Fim pad: "); Serial.println(padIndex);
 }
 
-
-void sendSysEx(byte padIndex, byte paramId, byte value)
+void SendSysEx(byte padIndex, byte paramId, byte value)
 {
   Serial.write(0xF0);       // Início da SysEx
   Serial.write(0x77);       // Manufacturer ID (fixo no seu protocolo)
@@ -217,42 +214,73 @@ void sendSysEx(byte padIndex, byte paramId, byte value)
   Serial.flush();
 }
 
-// void checkForRawCommand() {
-//   if (Serial.available() >= 4) {
-//     byte cmd = Serial.read();
-//     byte data1 = Serial.read();
-//     byte data2 = Serial.read();
-//     byte data3 = Serial.read();
-//     ExecCommand(cmd, data1, data2, data3);
-//   }
-// }
+void HandleSysExWrite(byte padId, byte paramId, byte value) {
+  if (padId < 15 && paramId < 12) {
+    padSettings[padId][paramId] = value;
+    Serial.print("Armazenado: Pad ");
+    Serial.print(padId);
+    Serial.print(" Param ");
+    Serial.print(paramId);
+    Serial.print(" = ");
+    Serial.println(value);
+  } else {
+    Serial.println("Valores inválidos ignorados.");
+  }
+}
 
+void SendSysExEcho(byte pad, byte param, byte value) {
+  Serial.write(0xF0); // SysEx start
+  Serial.write(0x7D); // ID experimental
+  Serial.write(0x30); // comando de echo
+  Serial.write(pad);
+  Serial.write(param);
+  Serial.write(value);
+  Serial.write(0xF7); // SysEx end
+}
 //############### FIM CÓDIGO ADICIONADO AO FIRMWARE #########################
 
 void ExecCommand(int Cmd,int Data1,int Data2,int Data3)
-{
-  
+{  
   switch(Cmd)
-      {
-        case 0x25: // CMD_SEND_ALL_PADS
+      {   
+        //COMANDO QUE PEDE TODOS OS PADS PARA O ARDUINO
+        case 0x25:
           for (byte i = 0; i < 15; i++) {
-            sendAllParameters(i); // <- ESSENCIAL!
+            SendAllParameters(i); // <- ESSENCIAL!
           }
-          sendEndOfTransmission(); // <- Encerra tudo com estilo
+          SendEndOfTransmission(); // <- Encerra tudo
         break;
 
-        // EM DESENVOLVIMENTO
-        case 0x26: // CMD_SEND_ALL_PADS
-          SaveAllPadsToEEPROM();
+        // COMANDO PARA INICIAR A GRAVAÇÃO (HANDSHAKE) 
+        case 0x26:
+          // Apenas atualiza os campos da struct em RAM
+          switch(Data2) {
+            case 0x00: Pin[Data1].Type = Data3; break;
+            case 0x01: Pin[Data1].Note = Data3; break;
+            case 0x02: Pin[Data1].Thresold = Data3; break;
+            case 0x03: Pin[Data1].ScanTime = Data3; break;
+            case 0x04: Pin[Data1].MaskTime = Data3; break;
+            case 0x05: Pin[Data1].Retrigger = Data3; break;
+            case 0x06: Pin[Data1].Curve = Data3; break;
+            case 0x07: Pin[Data1].CurveForm = Data3; break;
+            case 0x08: Pin[Data1].Xtalk = Data3; break;
+            case 0x09: Pin[Data1].XtalkGroup = Data3; break;
+            case 0x0A: Pin[Data1].Channel = Data3; break;
+            case 0x0B: Pin[Data1].Gain = Data3; break;
+          }
         break;
 
-        // case 0x26:
-        //     SaveEEPROM(Data1, Data2, Data3); // data1 = padId, data2 = paramId, data3 = value
-        // break;
-        
+        //COMANDO END, APÓS ENVIAR TODOS OS PADS, PODE GRAVAR!
         case 0x28:
-            Serial.println(F("[ARDUINO] Todos os dados foram gravados com sucesso."));
+          for (byte pad = 0; pad < NPin; pad++) {
+            for (byte param = 0; param < 12; param++) {
+              byte value = GetPinSetting(pad, param);
+              SaveEEPROM(pad, param, value);
+            }
+          }
         break;
+
+
         case 0x10: // Comando especial de debug para imprimir os dados da caixa
           PrintAllPadSettings();
         break;
@@ -407,9 +435,9 @@ void Input()
   //===HANDSHAKE======
   while(Serial.peek()>=0 && Serial.peek()!=0xF0) Serial.read();
   //===HANDSHAKE======
-  
+
   if (Serial.available() > 6)
-  {
+  {    
     byte Start=Serial.read();
     byte ID=Serial.read(); 
     int Cmd=Serial.read();
@@ -421,26 +449,3 @@ void Input()
     ExecCommand(Cmd,Data1,Data2,Data3);
   }
 }
-
-//SE PRECISAR O CÓDIGO ESTÁ AQUI PARA RECEBER O HANDSHAKE DIRETAMENTE NO LOOP() LA EM CIMA, ANTES DE INPUT()
-
-// if (Serial.available() > 0) {
-//               byte incoming = Serial.read();
-
-//               if (incoming == 0xF0) {
-//                 checkForRawCommand(); // continua processando Sysex normalmente
-//               } else if (incoming == 0x26) {
-//                 writeMode = true;
-//                 Serial.println(F("[ARDUINO] Modo gravação ativado."));
-//               } else if (incoming == 0x28) {
-//                 writeMode = false;
-//                 Serial.println(F("[ARDUINO] Modo gravação encerrado."));
-//               } else if (writeMode) {
-//                 // Aguarda os próximos 3 bytes: pin, param, value
-//                 while (Serial.available() < 3); // Espera os próximos dados chegarem
-//                 byte pin = incoming;
-//                 byte param = Serial.read();
-//                 byte value = Serial.read();
-//                 SaveEEPROM(pin, param, value);
-//               }
-//         }

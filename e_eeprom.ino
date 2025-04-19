@@ -1,4 +1,3 @@
-
 //==============================
 //    EEPROM
 //==============================
@@ -41,24 +40,39 @@ void LoadAllEEPROM()
 void LoadEEPROM(byte Pin,byte Param)
 {
   #if defined(__AVR__)
-  byte Value=EEPROM.read(100+(Pin*16)+Param); 
+  byte Value=EEPROM.read(100+(Pin*12)+Param); 
   if(Value>127) Value=127;
   ExecCommand(0x03,Pin,Param,Value);
   #endif
 }
 
-void SaveEEPROM(byte Pin,byte Param,byte Value)
+void SaveEEPROM(byte PinId,byte ParamId,byte Value)
 {
   #if defined(__AVR__)
-  ExecCommand(0x03,Pin,Param,Value);
-  EEPROM.write(100+(Pin*16)+Param, Value);
+    ExecCommand(0x03,PinId,ParamId,Value);
+    EEPROM.write(100+(PinId*12)+ParamId, Value); //Update só grava se for diferente, menos esforço, menos desgaste....
+    // Atualiza o campo REAL da struct Pin
+    switch (ParamId) {
+      case 0x00: Pin[PinId].Type = Value; break;
+      case 0x01: Pin[PinId].Note = Value; break;
+      case 0x02: Pin[PinId].Thresold = Value; break;
+      case 0x03: Pin[PinId].ScanTime = Value; break;
+      case 0x04: Pin[PinId].MaskTime = Value; break;
+      case 0x05: Pin[PinId].Retrigger = Value; break;
+      case 0x06: Pin[PinId].Curve = Value; break;
+      case 0x07: Pin[PinId].CurveForm = Value; break;
+      case 0x08: Pin[PinId].Xtalk = Value; break;
+      case 0x09: Pin[PinId].XtalkGroup = Value; break;
+      case 0x0A: Pin[PinId].Channel = Value; break;
+      case 0x0B: Pin[PinId].Gain = Value; break;
+    }
   #endif
 }
 
 void SaveEEPROM(byte Pin,byte Param)
 {
   #if defined(__AVR__)
-  EEPROM.write(100+(Pin*16)+Param, GetPinSetting(Pin,Param));
+  EEPROM.write(100+(Pin*12)+Param, GetPinSetting(Pin,Param));
   #endif
 }
 
@@ -137,15 +151,3 @@ void LoadHHEEPROM(byte Param)
   ExecCommand(0x03,0x4C,Param,Value);
   #endif
 }
-
-//EM DESENVOLVIMENTO
-void SaveAllPadsToEEPROM() {
-  for (byte pad = 0; pad < NPin; pad++) {
-    for (byte param = 0x00; param <= 0x0B; param++) {
-      byte value = GetPinSetting(pad, param);
-      EEPROM.update(100 + (pad * 12) + param, value);
-    }
-  }
-  Serial.println(F("[ARDUINO] Todos os pads gravados na EEPROM com sucesso."));
-}
-
